@@ -1,2 +1,3 @@
-/.bsp/
+.bsp/
 target/
+.idea

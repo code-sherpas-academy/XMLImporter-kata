@@ -5,10 +5,17 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.example"
 ThisBuild / organizationName := "example"
 
-lazy val root = (project in file("."))
+resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"
+
+lazy val root: Project = (project in file("."))
   .settings(
     name := "XMLImporter",
-    libraryDependencies += munit % Test
+    libraryDependencies ++= Seq(
+      scalactic % Test,
+      scalatest % Test,
+      assertj % Test,
+      jakartaXmlBindApi,
+      jaxbRuntime,
+      postgresql
+    )
   )
-
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
