@@ -10,7 +10,7 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 
 class BatchXmlImporterShould extends AnyFunSuite {
 
-  val path: Path = Path.of(System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources")
+  val path: Path = Path.of(s"${sys.props("user.dir")}${File.separator}src${File.separator}main${File.separator}resources")
 
   private def clearTables(): Unit = {
     val conn = DriverManager.getConnection(
