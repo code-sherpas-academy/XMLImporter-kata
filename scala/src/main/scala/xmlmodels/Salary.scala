@@ -1,6 +1,6 @@
 package xmlmodels
 
-import jakarta.xml.bind.annotation.{XmlAttribute, XmlRootElement, XmlValue}
+import javax.xml.bind.annotation.{XmlAttribute, XmlRootElement, XmlValue}
 
 @XmlRootElement
 class Salary {

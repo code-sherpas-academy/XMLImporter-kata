@@ -1,6 +1,6 @@
 package xmlmodels
 
-import jakarta.xml.bind.annotation.{XmlAttribute, XmlElement, XmlRootElement}
+import javax.xml.bind.annotation.{XmlAttribute, XmlElement, XmlRootElement}
 
 @XmlRootElement
 class Staff extends Serializable {
