@@ -1,6 +1,7 @@
+import importers.XmlImporter
+import models.{Company, Salary, Staff}
 import org.assertj.core.api.Assertions._
 import org.scalatest.funsuite.AnyFunSuite
-import xmlmodels.{Company, Salary, Staff}
 
 import java.io.File
 import java.nio.file.Path
@@ -81,7 +82,7 @@ class BatchXmlImporterShould extends AnyFunSuite {
   }
 
   test("import xml into database") {
-    val batchXmlImporter: BatchXmlImporter = new BatchXmlImporter
+    val batchXmlImporter: XmlImporter = new XmlImporter
     clearTables()
 
     batchXmlImporter.importFiles(path)

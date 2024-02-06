@@ -1,4 +1,4 @@
-package xmlmodels
+package models
 
 import jakarta.xml.bind.annotation.{XmlAttribute, XmlElement, XmlRootElement}
 
