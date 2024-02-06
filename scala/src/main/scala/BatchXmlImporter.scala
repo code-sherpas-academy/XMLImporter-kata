@@ -11,18 +11,13 @@ class BatchXmlImporter {
   @throws[JAXBException]
   @throws[SQLException]
   def importFiles(folderPath: Path): Unit = {
-    val fileExtension: String = ".xml"
-    val paths: List[File] = listFiles(fileExtension)(folderPath.toFile).toList
+    val paths: List[File] = listXmlFileFromFolders(folderPath)
+    val companies: List[Company] = unmarshalXmlIntoCompanies(paths)
+    insertCompaniesAndStaffIntoDatabase(companies)
+  }
 
-    val companies: List[Company] = for {
-      path <- paths
-    } yield {
-      val file: File = new File(path.toString)
-      val jaxbContext: JAXBContext = JAXBContext.newInstance(classOf[Company])
-      val jaxbUnmarshaller: Unmarshaller = jaxbContext.createUnmarshaller
-      jaxbUnmarshaller.unmarshal(file).asInstanceOf[Company]
-    }
-
+  private def insertCompaniesAndStaffIntoDatabase(companies: List[Company]): Unit = {
+    // Insert the companies and their staff into the database
     for (company <- companies) {
       val conn: Connection = DriverManager.getConnection(
         "jdbc:postgresql://127.0.0.1:5432/postgres", "postgres", "postgres")
@@ -62,6 +57,26 @@ class BatchXmlImporter {
         if (conn != null) conn.close()
       }
     }
+  }
+
+  private def listXmlFileFromFolders(folderPath: Path) = {
+    // Get all XML files from the folder
+    val fileExtension: String = ".xml"
+    val paths: List[File] = listFiles(fileExtension)(folderPath.toFile).toList
+    paths
+  }
+
+  private def unmarshalXmlIntoCompanies(paths: List[File]) = {
+    // Unmarshal the XML files into Company objects
+    val companies: List[Company] = for {
+      path <- paths
+    } yield {
+      val file: File = new File(path.toString)
+      val jaxbContext: JAXBContext = JAXBContext.newInstance(classOf[Company])
+      val jaxbUnmarshaller: Unmarshaller = jaxbContext.createUnmarshaller
+      jaxbUnmarshaller.unmarshal(file).asInstanceOf[Company]
+    }
+    companies
   }
 
   private def listFiles(fileExtension: String)(file: File): Array[File] = {
