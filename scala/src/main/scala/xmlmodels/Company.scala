@@ -1,6 +1,6 @@
 package xmlmodels
 
-import jakarta.xml.bind.annotation.{XmlAttribute, XmlElement, XmlRootElement}
+import javax.xml.bind.annotation._
 
 @XmlRootElement
 class Company {
@@ -9,5 +9,5 @@ class Company {
   var name: String = _
 
   @XmlElement
-  var staff: List[Staff] = Nil
+  var staff: Array[Staff] = Array.empty
 }
