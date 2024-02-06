@@ -1,11 +1,13 @@
+import database.DatabaseManager
+
 import java.io.{File, IOException}
 import java.nio.file.Path
 import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet, SQLException, Statement}
-
 import jakarta.xml.bind.{JAXBContext, JAXBException, Unmarshaller}
 import xmlmodels.Company
 
 class BatchXmlImporter {
+  private val databaseManager: DatabaseManager = new DatabaseManager("jdbc:postgresql://127.0.0.1:5432/postgres", "postgres", "postgres")
 
   @throws[IOException]
   @throws[JAXBException]
@@ -13,50 +15,7 @@ class BatchXmlImporter {
   def importFiles(folderPath: Path): Unit = {
     val paths: List[File] = listXmlFileFromFolders(folderPath)
     val companies: List[Company] = unmarshalXmlIntoCompanies(paths)
-    insertCompaniesAndStaffIntoDatabase(companies)
-  }
-
-  private def insertCompaniesAndStaffIntoDatabase(companies: List[Company]): Unit = {
-    // Insert the companies and their staff into the database
-    for (company <- companies) {
-      val conn: Connection = DriverManager.getConnection(
-        "jdbc:postgresql://127.0.0.1:5432/postgres", "postgres", "postgres")
-
-      try {
-        var companyId: Int = 0
-
-        val preparedStatement: PreparedStatement = conn.prepareStatement("INSERT INTO company(name) VALUES (?)", Statement.RETURN_GENERATED_KEYS)
-        preparedStatement.setString(1, company.name)
-        preparedStatement.executeUpdate()
-
-        val generatedKeys: ResultSet = preparedStatement.getGeneratedKeys
-        if (generatedKeys.next()) {
-          companyId = generatedKeys.getLong(1).toInt
-        } else {
-          throw new SQLException("No ID obtained.")
-        }
-
-        for (staff <- company.staff) {
-          val preparedStatementStaff: PreparedStatement = conn.prepareStatement(
-            "INSERT INTO staff(id,company_id, first_name, last_name, nick_name) VALUES (?,?,?,?,?)")
-          preparedStatementStaff.setInt(1, staff.id)
-          preparedStatementStaff.setInt(2, companyId)
-          preparedStatementStaff.setString(3, staff.firstname)
-          preparedStatementStaff.setString(4, staff.lastname)
-          preparedStatementStaff.setString(5, staff.nickname)
-          preparedStatementStaff.executeUpdate()
-
-          val preparedStatementSalary: PreparedStatement = conn.prepareStatement(
-            "INSERT INTO salary(staff_id, currency, value) VALUES (?,?,?)")
-          preparedStatementSalary.setInt(1, staff.id)
-          preparedStatementSalary.setString(2, staff.salary.currency)
-          preparedStatementSalary.setInt(3, staff.salary.value)
-          preparedStatementSalary.executeUpdate()
-        }
-      } finally {
-        if (conn != null) conn.close()
-      }
-    }
+    databaseManager.insertCompaniesAndStaffIntoDatabase(companies)
   }
 
   private def listXmlFileFromFolders(folderPath: Path) = {
