@@ -1,15 +1,18 @@
+import factories.CompanyFactory
 import importers.XmlImporter
 import models.{Company, Salary, Staff}
 import org.assertj.core.api.Assertions._
 import org.scalatest.funsuite.AnyFunSuite
+import sql.PostgreSQLConnector
 
 import java.io.File
 import java.nio.file.Path
 import java.sql.{Connection, DriverManager, ResultSet}
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
-class BatchXmlImporterShould extends AnyFunSuite {
+class BatchXmlImporterShould extends AnyFunSuite with CompanyFactory {
+  implicit private val conn: PostgreSQLConnector = new PostgreSQLConnector()
 
   val path: Path = Path.of(s"${sys.props("user.dir")}${File.separator}src${File.separator}main${File.separator}resources")
 
@@ -82,10 +85,13 @@ class BatchXmlImporterShould extends AnyFunSuite {
   }
 
   test("import xml into database") {
+
+
     val batchXmlImporter: XmlImporter = new XmlImporter
     clearTables()
 
-    batchXmlImporter.importFiles(path)
+    val companiesToCreate = batchXmlImporter.importFilesAndConvertToCompany(path)
+    companiesToCreate.foreach(createCompany)
 
     val companies: List[Company] = getAllCompanies
     assertThat(companies.asJava).hasSize(2)
